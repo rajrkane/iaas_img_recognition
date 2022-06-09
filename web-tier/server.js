@@ -29,7 +29,7 @@ server.post('/', upload.single('myfile'), async (req, res) => {
   const result = await upload_image(req.file)
 
   //console.log(result)
-  res.end(req.file.originalname + ' uploaded!');
+  res.end(req.file.originalname + ' uploaded!');  // use res.send instead of res.end?
 });
 
 // You need to configure node.js to listen on 0.0.0.0 so it will be able to accept connections on all the IPs of your machine
