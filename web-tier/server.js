@@ -14,7 +14,7 @@ const upload = multer({dest: __dirname + '/upload_images'});
 
 server.use(express.static('public'));
 
-server.post('/images', upload.single('image'), async (req, res) => {
+server.post('/', upload.single('myfile'), async (req, res) => {
   // if (req.file) {
   //   console.log(req.file)
   // }
