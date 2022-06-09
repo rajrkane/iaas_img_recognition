@@ -1,0 +1,4 @@
+.env
+*_images/
+node_modules/
+*.json
