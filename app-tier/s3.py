@@ -8,7 +8,7 @@ class S3:
     def __init__(self):
         self.params = {}
         self.resource = None
-        self.results = {'objects': []}
+        self.results = {'results': []}
 
         self.load_params()
         self.load_s3()
@@ -18,7 +18,7 @@ class S3:
         load_dotenv()
         self.params = {
             'output_bucket': os.getenv('S3_OUTPUT'),
-            'region': os.getenv('S3_REGION'),
+            'region': os.getenv('REGION'),
             'access_key': os.getenv('AWS_ACCESS_KEY'),
             'secret_key': os.getenv('AWS_SECRET_KEY')
         }
@@ -46,11 +46,7 @@ class S3:
         for obj in bucket.objects.all():
             key = obj.key 
             body = obj.get()['Body'].read().decode('UTF-8').strip()
-            self.results['objects'].append({key: body}) 
-
-
-def main():
-    s3 = S3()
-
-if __name__=="__main__":
-    main()
+            self.results['results'].append({
+                'key': key,
+                'body': body
+            }) 
