@@ -8,8 +8,8 @@ const server = express();
 const PORT = 3000;
 
 const {upload_image} = require('./s3')
-
 const {send_request_message} = require('./sqs')
+const {add_app_instances} = require('./ec2')
 
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
@@ -27,12 +27,13 @@ server.post('/', upload.single('myfile'), async (req, res) => {
   //   if ( err ) console.log('ERROR: ' + err);
   // });
 
-  const result = await upload_image(req.file)
+  // const result = await upload_image(req.file)
 
-  const result_sqs = await send_request_message(req.file.originalname)
+  // const result_sqs = await send_request_message(req.file.originalname)
 
-  console.log("SQS RESPONSE:")
-  console.log(result_sqs)
+  var result = await add_app_instances("1")
+  console.log("EC2 RESPONSE:")
+  console.log(result)
 
   res.end(req.file.originalname + ' uploaded!');
 });
