@@ -20,7 +20,7 @@ function upload_image(file) {
   const uploadParams = {
     Bucket: input_bucket,
     Body: fileStream,
-    Key: file.filename
+    Key: file.originalname
   }
 
   return s3.upload(uploadParams).promise()
