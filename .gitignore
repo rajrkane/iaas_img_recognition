@@ -2,3 +2,4 @@
 *_images/
 node_modules/
 *.json
+*__pycache__/
