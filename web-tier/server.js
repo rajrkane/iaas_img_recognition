@@ -9,6 +9,8 @@ const PORT = 3000;
 
 const {upload_image} = require('./s3')
 
+const {send_request_message} = require('./sqs')
+
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
 
@@ -26,6 +28,11 @@ server.post('/', upload.single('myfile'), async (req, res) => {
   // });
 
   const result = await upload_image(req.file)
+
+  const result_sqs = await send_request_message(req.file.originalname)
+
+  console.log("SQS RESPONSE:")
+  console.log(result_sqs)
 
   res.end(req.file.originalname + ' uploaded!');
 });
