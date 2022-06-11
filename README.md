@@ -53,7 +53,11 @@ aws_secret_access_key=<aws ec2 user secret key>
 ```
 
 # Web server launch
-To run the web server from the instance: `node ~/iaas_img_recognition/web-tier/server.js`
+To run the web server from the instance: `node ~/iaas_img_recognition/web-tier/server.js
+
+# app-tier setup
+Create an EC2 `app-tier-setup` instance from the `ami-0bb1040fdb5a076bc` AMI. Send the `app-tier/startup.sh` file to the `/home/ubuntu/` directory of this instance via SFTP. Do the command `chmod 755 startup.sh` to make the script executable. Do the command `crontab -e` (and possibly select an editor to open). At the end of the file add the line `@reboot sh /home/ubuntu/startup.sh &`. This will run the `startup.sh` file on reboot. Now, from the AWS console, create a new image from this instance. Now all ec2 instances from this image will run the script on startup.
+
 
 # Client generate workload
 On the client run the following command to create the workload:
