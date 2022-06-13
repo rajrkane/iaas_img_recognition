@@ -1,5 +1,6 @@
 import boto3
-import os 
+import os
+import io
 from dotenv import load_dotenv
 import json
 
@@ -7,12 +8,11 @@ class S3:
 
     def __init__(self):
         self.params = {}
-        self.resource = None
+        self.client = None
         self.results = {'results': []}
 
         self.load_params()
         self.load_s3()
-        self.get_results()
 
     def load_params(self):
         load_dotenv()
@@ -25,28 +25,28 @@ class S3:
 
     def load_s3(self):
         '''
-        Loads an S3 resource.
+        Loads an S3 client.
         '''
 
-        s3_resource = boto3.resource(
+        s3_client = boto3.client(
             's3',
             region_name=self.params['region'],
             aws_access_key_id=self.params['access_key'],
             aws_secret_access_key=self.params['secret_key']
         )
 
-        self.resource = s3_resource
+        self.client = s3_client
 
-    def get_results(self):
+    def put_object(self, classification):
         '''
-        Builds a dictionary mapping key to body for objects in the S3 output bucket.       
+        Saves a classification in the output bucket for persistence.
         '''
 
-        bucket = self.resource.Bucket(self.params['output_bucket'])
-        for obj in bucket.objects.all():
-            key = obj.key 
-            body = obj.get()['Body'].read().decode('UTF-8').strip()
-            self.results['results'].append({
-                'key': key,
-                'body': body
-            }) 
+        key = classification['key']
+        label = classification['label']
+        
+        # key is the name, label is the content
+        with io.BytesIO() as f:
+            f.write(str.encode(label))
+            f.seek(0)
+            self.client.upload_fileobj(f, self.params['output_bucket'], key)

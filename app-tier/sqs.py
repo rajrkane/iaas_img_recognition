@@ -39,16 +39,13 @@ class SQS:
         Sends a message to the SQS response queue.
         '''
 
-        print(self.params)
         response = self.client.send_message(
             QueueUrl=self.params['response_queue'],
             MessageAttributes={
                 'Name': {
                     'DataType': 'String',
-                    'StringValue': msg['name']
+                    'StringValue': msg['key']
                 }
             },
-            MessageBody=msg['body']
+            MessageBody=msg['label']
         )
-
-        print('sent message')
