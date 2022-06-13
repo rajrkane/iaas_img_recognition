@@ -3,7 +3,7 @@ const fs = require('fs')
 const S3 = require('aws-sdk/clients/s3')
 
 const input_bucket = process.env.S3_INPUT
-const region = process.env.S3_REGION
+const region = process.env.REGION
 const access_key = process.env.AWS_ACCESS_KEY
 const secret_key = process.env.AWS_SECRET_KEY
 

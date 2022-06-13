@@ -5,7 +5,7 @@ import argparse
 
 def send_one_request(url, image_path):
     # define http payload
-    file = {"image": open(image_path,'rb')}
+    file = {"myfile": open(image_path,'rb')}
 
     r = requests.post(url, files=file)
     if r.status_code != 200:
