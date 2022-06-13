@@ -6,9 +6,15 @@ Create an S3 input images bucket and output classifications bucket.
 
 # IAM Policies and user setups
 
-Make an IAM policy for S3 allowing `DeleteObject`, `PutObject`, `GetObject`. Under resources of the policy, add the arn of the two S3 buckets above. Give a name to the policy.
+1. Make an IAM policy for S3 allowing `DeleteObject`, `PutObject`, `GetObject`. Under resources of the policy, add the arn of the two S3 buckets above. Give a name to the policy.
 
-Create an IAM user for the web server and give it programmatic access. Under permissions, give this user the policy made above.
+2. Make an IAM police for SQS allowing `SendMessage` and `GetQueueAttributes`. Under resources of the policy, add the arn of the request-queue. Give a name to this policy.
+
+3. Make an IAM policy for SQS allowing `ChangeMessageVisibility`, `DeleteMessage`, and `ReceiveMessage`. Under resources of this policy, add the arn of the request-queue. Give a name to this policy.
+
+Create an IAM user for the web server and give it programmatic access. Under permissions, give this user the S3 policy from (1) above and the SQS policy from (2) above.
+
+Create an IAM user for the app instance and give it programmatic access. Under permissions, give this user the S3 policy above from (1) and the SQS policy above from (3).
 
 # Web server EC2 setup
 
@@ -52,4 +58,4 @@ To run the web server from the instance: `node ~/iaas_img_recognition/web-tier/s
 
 # Client generate workload
 On the client run the following command to create the workload:
-`python3 workload_generator.py --num_request 1 --url 'http://<Public IPv4 DNS of EC2 instance>:3000/images' --image_folder "<relative path to pictures folder>"`
+`python3 workload_generator.py --num_request 1 --url 'http://<Public IPv4 DNS of EC2 instance>:3000' --image_folder "<relative path to pictures folder>"`
