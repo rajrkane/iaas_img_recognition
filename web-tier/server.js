@@ -5,6 +5,7 @@
 const express = require('express');
 const multer = require('multer');
 const server = express();
+const cronjob = require('cron').CronJob;
 const PORT = 3000;
 
 const {upload_image} = require('./s3')
@@ -42,3 +43,12 @@ const hostname = '0.0.0.0';
 server.listen(PORT, hostname, () => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
   });
+
+var job = new cronjob(
+	'0-59/5 * * * * *',
+	function() {
+		console.log('Youll see this message every 5 seconds.');
+	},
+	null,
+	true
+);

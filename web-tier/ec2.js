@@ -6,6 +6,7 @@ const secret_key = process.env.AWS_SECRET_KEY
 const ec2_region = process.env.EC2_REGION
 const ec2_ami = process.env.EC2_AMI
 const ec2_ssh_key_name = process.env.EC2_SSH_KEY_NAME
+const ec2_apptier_securitygroupid = process.env.EC2_APPTIER_SECURITYGROUPID
 
 const ec2 = new EC2({
 	accessKeyId: access_key,
@@ -23,6 +24,9 @@ function add_app_instances(number_of_instances) {
 		ImageId: ec2_ami,
 		InstanceType: "t2.micro",
 		KeyName: ec2_ssh_key_name,
+		SecurityGroupIds: [
+			ec2_apptier_securitygroupid
+		],
 		TagSpecifications: [
 			{
 				ResourceType: "instance",
@@ -35,7 +39,6 @@ function add_app_instances(number_of_instances) {
 				]
 			}
 		]
-		// UserData: "<script>" to run script on startup
 	};
 
 	return ec2.runInstances(params).promise()

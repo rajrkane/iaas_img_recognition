@@ -43,6 +43,10 @@ AWS_ACCESS_KEY="<aws access key>"  (This is the access and secret key of the web
 AWS_SECRET_KEY="<aws secret key>"
 REQUEST_QUEUE_URL="<request queue url>"
 SQS_REGION="<sqs region>"
+EC2_REGION="<ec2 region>"
+EC2_AMI="<app-tier ami>"
+EC2_SSH_KEY_NAME="<app-tier ssh key name>"
+EC2_APPTIER_SECURITYGROUPID="<app-tier security group id allowing ssh inbound>"
 ```
 
 The root directory of the instance should have a `~/.aws/credentials` file with the following contents:
