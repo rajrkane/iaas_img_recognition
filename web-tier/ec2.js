@@ -14,10 +14,14 @@ const ec2 = new EC2({
 	region: ec2_region
 })
 
+// get number of app-tier instances running or pending
+function get_app_instances() {
+	
+}
+
 // spin up number_of_instances instances
 // number_of_instances must be of type String
 function add_app_instances(number_of_instances) {
-	// Check we arent addinng more than 20
 	var params = {
 		MaxCount: number_of_instances,
 		MinCount: number_of_instances,

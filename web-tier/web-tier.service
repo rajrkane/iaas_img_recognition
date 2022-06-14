@@ -1,0 +1,13 @@
+[Unit]
+Description=web-tier server
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/node /home/ubuntu/iaas_img_recognition/web-tier/server.js
+Restart=always
+RestartSec=10
+User=ubuntu
+EnvironmentFile=/home/ubuntu/iaas_img_recognition/.env
+
+[Install]
+WantedBy=multi-user.target
