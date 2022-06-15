@@ -3,7 +3,7 @@ const EC2 = require('aws-sdk/clients/ec2')
 
 const access_key = process.env.AWS_ACCESS_KEY
 const secret_key = process.env.AWS_SECRET_KEY
-const ec2_region = process.env.EC2_REGION
+const ec2_region = process.env.REGION
 const ec2_ami = process.env.EC2_AMI
 const ec2_ssh_key_name = process.env.EC2_SSH_KEY_NAME
 const ec2_apptier_securitygroupid = process.env.EC2_APPTIER_SECURITYGROUPID

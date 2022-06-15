@@ -1,8 +1,8 @@
 require('dotenv').config()
 const SQS = require('aws-sdk/clients/sqs');
 
-const request_queue_url = process.env.REQUEST_QUEUE_URL
-const sqs_region = process.env.SQS_REGION
+const request_queue_url = process.env.SQS_REQUEST_URL
+const sqs_region = process.env.REGION
 const access_key = process.env.AWS_ACCESS_KEY
 const secret_key = process.env.AWS_SECRET_KEY
 
