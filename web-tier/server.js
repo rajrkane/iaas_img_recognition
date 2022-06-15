@@ -14,6 +14,7 @@ const {get_request_queue_length} = require('./sqs')
 const {add_app_instances} = require('./ec2')
 const {get_app_instances} = require('./ec2')
 const {terminate_app_instance} = require('./ec2')
+const {add_max_app_instances} = require('./ec2')
 
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
@@ -87,8 +88,6 @@ var job = new cronjob(
 					}
 				});
 			});
-			// console.log("EC2 Get Apps RESPONSE:")
-			// console.log(running_or_pending_instances);
 
 		} catch (err) {
 			console.log("EC2 get instances error:");
@@ -106,23 +105,29 @@ var job = new cronjob(
 				// getting the instance id of "app-tier-<last_app_number>"
 				app_instances_dump["Reservations"].forEach((reservation) => {
 					reservation["Instances"].forEach((instance) => {
-						if (parseInt(instance["Tags"][0]["Value"].split('app-tier-').pop()) === last_app_number) {
+						let instance_state = instance["State"]["Name"];
+						if (parseInt(instance["Tags"][0]["Value"].split('app-tier-').pop()) === last_app_number
+							&& (instance_state === 'running' || instance_state === 'pending')) {
 							last_app_instanceid = instance["InstanceId"]
 						}
 					});
 				});
 
-				let result = await terminate_app_instance(last_app_instanceid);
+				await terminate_app_instance(last_app_instanceid);
+				console.log("--------- TERMINATED app-tier-" + last_app_number.toString() + " ----------------");
 			} 
+			
 			// If we have at least 5 messages in the queue and less than max instances, create max amount of instances
 			else if (request_queue_length >= 5 && running_or_pending_instances.filter(v => v === 1).length < max_app_instances_allowed) {
-				
+				await add_max_app_instances(running_or_pending_instances);	
+				console.log("--------ADDED MAX INSTANCES-------------");
 			}
+			
 		} catch(err) {
 			console.log(err)
 		}
 
-
+		// Spinning one app tier up for testing
 		// var result = add_app_instances("1").promise()
 
 	},

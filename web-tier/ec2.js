@@ -51,7 +51,7 @@ function add_app_instances(number_of_instances) {
 					{
 						Key: "Name",
 						// Change the value number to be dynamic later
-						Value: "app-tier-5" 
+						Value: "app-tier-14" 
 					}
 				]
 			}
@@ -67,6 +67,41 @@ function terminate_app_instance(instanceid) {
 	return ec2.terminateInstances(params).promise();
 }
 
+// add the max amount of app instances
+function add_max_app_instances(running_or_pending_instances) {
+	var params = {
+		MaxCount: '1',
+		MinCount: '1',
+		ImageId: ec2_ami,
+		InstanceType: "t2.micro",
+		KeyName: ec2_ssh_key_name,
+		SecurityGroupIds: [
+			ec2_apptier_securitygroupid
+		],
+		TagSpecifications: [
+			{
+				ResourceType: "instance",
+				Tags: [
+					{
+						Key: "Name",
+						Value: "APP NAME HERE"
+					}
+				]
+			}
+		]
+	};
+
+	// there is no way to make all the instances at once with different names, Ive looked at everything
+	// Creating one at a time
+	for (i=0; i<running_or_pending_instances.length; ++i) {
+		if (running_or_pending_instances[i] != 1) { // If its not running or pending, we need to make it
+			params["TagSpecifications"][0]["Tags"][0]["Value"] = 'app-tier-' + i.toString();
+			ec2.runInstances(params).promise();
+		}
+	};
+}
+
 exports.add_app_instances = add_app_instances
 exports.get_app_instances = get_app_instances
 exports.terminate_app_instance = terminate_app_instance
+exports.add_max_app_instances = add_max_app_instances
