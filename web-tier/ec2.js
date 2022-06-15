@@ -61,5 +61,12 @@ function add_app_instances(number_of_instances) {
 	return ec2.runInstances(params).promise();
 }
 
+// terminate the app instance with instanceid
+function terminate_app_instance(instanceid) {
+	var params = {InstanceIds: [instanceid]};
+	return ec2.terminateInstances(params).promise();
+}
+
 exports.add_app_instances = add_app_instances
 exports.get_app_instances = get_app_instances
+exports.terminate_app_instance = terminate_app_instance

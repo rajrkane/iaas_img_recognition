@@ -13,9 +13,13 @@ const {send_request_message} = require('./sqs')
 const {get_request_queue_length} = require('./sqs')
 const {add_app_instances} = require('./ec2')
 const {get_app_instances} = require('./ec2')
+const {terminate_app_instance} = require('./ec2')
 
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
+
+// maximum number of app-tier instances allowed at once
+const max_app_instances_allowed = 19; 
 
 server.use(express.static('public'));
 
@@ -49,33 +53,32 @@ server.listen(PORT, hostname, () => {
 var job = new cronjob(
 	'0-59/10 * * * * *',
 	async function() {	
+		/////// VARIABLES ///////////
 		let request_queue_length = 0;
 
 		// Make an array of length 19 (most amout of ec2 app instances while staying free)
 		// running_or_pending_instances[5] = 1 means app-tier-5 is pending or running
-		// otherwise it does not exist.
-		// let running_or_pending_instances = new Array(19); for (let i=0; i<19; ++i) running_or_pending_instances[i] = 0;
-		let running_or_pending_instances = new Array(19); for (let i=0; i<19; ++i) running_or_pending_instances[i] = 0;
+		// otherwise it does not exist
+		let running_or_pending_instances = new Array(max_app_instances_allowed); 
+		for (let i=0; i<max_app_instances_allowed; ++i) running_or_pending_instances[i] = 0;
 		
-		// Get number of messages in request queue
+		////////// Get number of messages in request queue ////////////
 		try {
 			let result = await get_request_queue_length();
 			request_queue_length = parseInt(result["Attributes"]["ApproximateNumberOfMessages"]);
-			console.log(request_queue_length);
 		} catch (err) {
 			console.log(err);
 		}
 
 
-		/*
-		// getting number of ec2 instances
+		///////// getting number of ec2 instances ////////////
 		try {
 			
 			// get instances
-			let result = await get_app_instances();
+			var app_instances_dump = await get_app_instances();
 			
 			// Fill in the app tier instances that are running or pending
-			result["Reservations"].forEach((reservation) => {
+			app_instances_dump["Reservations"].forEach((reservation) => {
 				reservation["Instances"].forEach((instance) => {
 					let instance_state = instance["State"]["Name"];
 					if (instance_state === 'running' || instance_state === 'pending') {
@@ -91,7 +94,34 @@ var job = new cronjob(
 			console.log("EC2 get instances error:");
 			console.log(err);
 		}
-		*/
+		
+
+		//////////// Dynamically adding/removing app instances as needed ///////////////////////
+		try {
+			// Destroy app instances if queue length is less than 5 and we have more than 1 app instance
+			if (request_queue_length < 5 && running_or_pending_instances.filter(v => v === 1).length > 1) {
+				let last_app_number = running_or_pending_instances.lastIndexOf(1);
+				let last_app_instanceid = "";
+				
+				// getting the instance id of "app-tier-<last_app_number>"
+				app_instances_dump["Reservations"].forEach((reservation) => {
+					reservation["Instances"].forEach((instance) => {
+						if (parseInt(instance["Tags"][0]["Value"].split('app-tier-').pop()) === last_app_number) {
+							last_app_instanceid = instance["InstanceId"]
+						}
+					});
+				});
+
+				let result = await terminate_app_instance(last_app_instanceid);
+			} 
+			// If we have at least 5 messages in the queue and less than max instances, create max amount of instances
+			else if (request_queue_length >= 5 && running_or_pending_instances.filter(v => v === 1).length < max_app_instances_allowed) {
+				
+			}
+		} catch(err) {
+			console.log(err)
+		}
+
 
 		// var result = add_app_instances("1").promise()
 
