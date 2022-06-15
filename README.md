@@ -38,7 +38,8 @@ npm i dotenv
 The root directory of the repo should have a `.env` file in the following format:
 ```
 S3_INPUT="<Input Images Bucket Name>"
-S3_REGION="<S3 Region>"  (like "us-east-1")
+S3_OUTPUT = "<output bucket name>"
+REGION="<Region>"  (e.g. "ap-northeast-2")
 AWS_ACCESS_KEY="<aws access key>"  (This is the access and secret key of the webserver IAM user.)
 AWS_SECRET_KEY="<aws secret key>"
 REQUEST_QUEUE_URL="<request queue url>"
