@@ -21,4 +21,15 @@ function send_request_message(message_body) {
 	return sqs.sendMessage(params).promise()
 }
 
+// get request queue attributes
+function get_request_queue_length() {
+	var params = {
+		QueueUrl: request_queue_url,
+		AttributeNames: ["ApproximateNumberOfMessages"]
+	};
+
+	return sqs.getQueueAttributes(params).promise();
+}
+
 exports.send_request_message = send_request_message
+exports.get_request_queue_length = get_request_queue_length

@@ -10,6 +10,7 @@ const PORT = 3000;
 
 const {upload_image} = require('./s3')
 const {send_request_message} = require('./sqs')
+const {get_request_queue_length} = require('./sqs')
 const {add_app_instances} = require('./ec2')
 const {get_app_instances} = require('./ec2')
 
@@ -56,14 +57,22 @@ var job = new cronjob(
 		// let running_or_pending_instances = new Array(19); for (let i=0; i<19; ++i) running_or_pending_instances[i] = 0;
 		let running_or_pending_instances = new Array(19); for (let i=0; i<19; ++i) running_or_pending_instances[i] = 0;
 		
-		// console.log('Youll see this message every 10 seconds.');
-		// var result = add_app_instances("1").promise()
+		// Get number of messages in request queue
+		try {
+			let result = await get_request_queue_length();
+			request_queue_length = parseInt(result["Attributes"]["ApproximateNumberOfMessages"]);
+			console.log(request_queue_length);
+		} catch (err) {
+			console.log(err);
+		}
 
+
+		/*
 		// getting number of ec2 instances
 		try {
 			
 			// get instances
-			var result = await get_app_instances();
+			let result = await get_app_instances();
 			
 			// Fill in the app tier instances that are running or pending
 			result["Reservations"].forEach((reservation) => {
@@ -82,6 +91,10 @@ var job = new cronjob(
 			console.log("EC2 get instances error:");
 			console.log(err);
 		}
+		*/
+
+		// var result = add_app_instances("1").promise()
+
 	},
 	null,
 	true
