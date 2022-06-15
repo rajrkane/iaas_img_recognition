@@ -8,13 +8,9 @@ const server = express();
 const cronjob = require('cron').CronJob;
 const PORT = 3000;
 
-const {upload_image} = require('./s3')
-const {send_request_message} = require('./sqs')
-const {get_request_queue_length} = require('./sqs')
-const {add_app_instances} = require('./ec2')
-const {get_app_instances} = require('./ec2')
-const {terminate_app_instance} = require('./ec2')
-const {add_max_app_instances} = require('./ec2')
+const {upload_image} = require('./s3');
+const {send_request_message, get_request_queue_length} = require('./sqs');
+const {add_app_instances, get_app_instances, terminate_app_instance, add_max_app_instances} = require('./ec2');
 
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
@@ -53,7 +49,7 @@ server.listen(PORT, hostname, () => {
 // Runs every 10 seconds:
 var job = new cronjob(
 	'0-59/10 * * * * *',
-	async function() {	
+	async function() {
 		/////// VARIABLES ///////////
 		let request_queue_length = 0;
 
@@ -71,8 +67,7 @@ var job = new cronjob(
 			console.log(err);
 		}
 
-
-		///////// getting number of ec2 instances ////////////
+		///////// Get number of ec2 instances ////////////
 		try {
 			
 			// get instances
@@ -129,6 +124,7 @@ var job = new cronjob(
 
 		// Spinning one app tier up for testing
 		// var result = add_app_instances("1").promise()
+		
 
 	},
 	null,
