@@ -10,7 +10,7 @@ const PORT = 3000;
 
 const {upload_image} = require('./s3');
 const {send_request_message, get_request_queue_length} = require('./sqs');
-const {add_app_instances, get_app_instances, terminate_app_instance, add_max_app_instances} = require('./ec2');
+const {add_app_instance, get_app_instances, terminate_app_instance, add_max_app_instances} = require('./ec2');
 
 // uploaded images are saved in the folder "/upload_images"
 const upload = multer({dest: __dirname + '/upload_images'});
@@ -116,6 +116,12 @@ var job = new cronjob(
 			else if (request_queue_length >= 5 && running_or_pending_instances.filter(v => v === 1).length < max_app_instances_allowed) {
 				await add_max_app_instances(running_or_pending_instances);	
 				console.log("--------ADDED MAX INSTANCES-------------");
+			}
+
+			// if there are no app-tier instances, add one
+			else if (running_or_pending_instances.filter(v => v === 1).length === 0) {
+				await add_app_instance();
+				console.log("------------ ADDED ONE APP INSTANCE -----------------");
 			}
 			
 		} catch(err) {

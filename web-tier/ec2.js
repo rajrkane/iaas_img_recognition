@@ -32,12 +32,11 @@ async function get_app_instances() {
 }
 		
 
-// spin up number_of_instances instances
-// number_of_instances must be of type String
-function add_app_instances(number_of_instances) {
+// spin up app-tier-0 if it doesnt exist
+function add_app_instance() {
 	var params = {
-		MaxCount: number_of_instances,
-		MinCount: number_of_instances,
+		MaxCount: '1',
+		MinCount: '1',
 		ImageId: ec2_ami,
 		InstanceType: "t2.micro",
 		KeyName: ec2_ssh_key_name,
@@ -50,8 +49,7 @@ function add_app_instances(number_of_instances) {
 				Tags: [
 					{
 						Key: "Name",
-						// Change the value number to be dynamic later
-						Value: "app-tier-14" 
+						Value: "app-tier-0" 
 					}
 				]
 			}
@@ -101,7 +99,7 @@ function add_max_app_instances(running_or_pending_instances) {
 	};
 }
 
-exports.add_app_instances = add_app_instances
+exports.add_app_instance = add_app_instance
 exports.get_app_instances = get_app_instances
 exports.terminate_app_instance = terminate_app_instance
 exports.add_max_app_instances = add_max_app_instances
