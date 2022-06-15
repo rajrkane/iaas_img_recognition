@@ -14,10 +14,23 @@ const ec2 = new EC2({
 	region: ec2_region
 })
 
-// get number of app-tier instances running or pending
-function get_app_instances() {
+// get app-tier instances running or pending
+async function get_app_instances() {
 	
+	var params = {
+		Filters: [
+			{
+				Name: 'image-id',
+				Values: [
+					ec2_ami
+				]
+			}
+		]
+	};
+	
+	return ec2.describeInstances(params).promise();
 }
+		
 
 // spin up number_of_instances instances
 // number_of_instances must be of type String
@@ -38,14 +51,15 @@ function add_app_instances(number_of_instances) {
 					{
 						Key: "Name",
 						// Change the value number to be dynamic later
-						Value: "app-tier-1" 
+						Value: "app-tier-5" 
 					}
 				]
 			}
 		]
 	};
 
-	return ec2.runInstances(params).promise()
+	return ec2.runInstances(params).promise();
 }
 
 exports.add_app_instances = add_app_instances
+exports.get_app_instances = get_app_instances
