@@ -1,8 +1,8 @@
 require('dotenv').config()
 const SQS = require('aws-sdk/clients/sqs');
 
-const request_queue_url = process.env.REQUEST_QUEUE_URL
-const sqs_region = process.env.SQS_REGION
+const request_queue_url = process.env.SQS_REQUEST_URL
+const sqs_region = process.env.REGION
 const access_key = process.env.AWS_ACCESS_KEY
 const secret_key = process.env.AWS_SECRET_KEY
 
@@ -18,7 +18,18 @@ function send_request_message(message_body) {
 		MessageBody: message_body,
 		QueueUrl: request_queue_url
 	};
-	return sqs.sendMessage(params).promise()
+	return sqs.sendMessage(params).promise().then((data) => data)
+}
+
+// get request queue attributes
+function get_request_queue_length() {
+	var params = {
+		QueueUrl: request_queue_url,
+		AttributeNames: ["ApproximateNumberOfMessages"]
+	};
+
+	return sqs.getQueueAttributes(params).promise().then((data) => data)
 }
 
 exports.send_request_message = send_request_message
+exports.get_request_queue_length = get_request_queue_length
