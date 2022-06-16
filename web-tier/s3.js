@@ -16,14 +16,22 @@ const s3 = new S3({
 
 // upload photo
 function upload_image(file) {
-  const fileStream = fs.createReadStream(file.path)
-  const uploadParams = {
-    Bucket: input_bucket,
-    Body: fileStream,
-    Key: file.originalname
-  }
+	try {
+		if (file) {
+			if (fs.existsSync(file.path)) {
+				const fileStream = fs.createReadStream(file.path)
+				const uploadParams = {
+					Bucket: input_bucket,
+					Body: fileStream,
+					Key: file.originalname
+				}
 
-  return s3.upload(uploadParams).promise()
+				return s3.upload(uploadParams).promise().then((data) => data)
+			}
+		}
+	} catch (err) {
+		console.log(err)
+	}
 }
 
 exports.upload_image = upload_image

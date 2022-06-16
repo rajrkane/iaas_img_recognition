@@ -18,7 +18,7 @@ function send_request_message(message_body) {
 		MessageBody: message_body,
 		QueueUrl: request_queue_url
 	};
-	return sqs.sendMessage(params).promise()
+	return sqs.sendMessage(params).promise().then((data) => data)
 }
 
 // get request queue attributes
@@ -28,7 +28,7 @@ function get_request_queue_length() {
 		AttributeNames: ["ApproximateNumberOfMessages"]
 	};
 
-	return sqs.getQueueAttributes(params).promise();
+	return sqs.getQueueAttributes(params).promise().then((data) => data)
 }
 
 exports.send_request_message = send_request_message

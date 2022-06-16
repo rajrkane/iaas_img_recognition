@@ -28,7 +28,7 @@ async function get_app_instances() {
 		]
 	};
 	
-	return ec2.describeInstances(params).promise();
+	return ec2.describeInstances(params).promise().then((data) => data)
 }
 		
 
@@ -56,13 +56,13 @@ function add_app_instance() {
 		]
 	};
 
-	return ec2.runInstances(params).promise();
+	return ec2.runInstances(params).promise().then((data) => data)
 }
 
 // terminate the app instance with instanceid
 function terminate_app_instance(instanceid) {
 	var params = {InstanceIds: [instanceid]};
-	return ec2.terminateInstances(params).promise();
+	return ec2.terminateInstances(params).promise().then((data) => data)
 }
 
 // add the max amount of app instances
@@ -94,7 +94,7 @@ function add_max_app_instances(running_or_pending_instances) {
 	for (i=0; i<running_or_pending_instances.length; ++i) {
 		if (running_or_pending_instances[i] != 1) { // If its not running or pending, we need to make it
 			params["TagSpecifications"][0]["Tags"][0]["Value"] = 'app-tier-' + i.toString();
-			ec2.runInstances(params).promise();
+			ec2.runInstances(params).promise().then((data) => data)
 		}
 	};
 }

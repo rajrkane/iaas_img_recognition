@@ -3,6 +3,7 @@
  */
 
 // Server imports
+const fs = require('fs');
 const express = require('express');
 const server = express();
 const PORT = 3000;
@@ -16,30 +17,30 @@ const {job} = require('./backgroundtask.js');
 
 // multer imports
 // uploaded images are saved in the folder "/upload_images"
-const upload = multer({dest: __dirname + '/upload_images'});
 const multer = require('multer');
+const upload = multer({dest: __dirname + '/upload_images'});
 
 
 server.use(express.static('public'));
 
 // Upload image to S3 input bucket and send message to the request SQS queue
 server.post('/', upload.single('myfile'), async (req, res) => {
-  // if (req.file) {
-  //   console.log(req.file)
-  // }
 
-  // save the image locally
-  var fs = require('fs');
-  fs.rename(__dirname + '/upload_images/' + req.file.filename, __dirname + '/upload_images/' + req.file.originalname, function(err) {
-    if ( err ) console.log('ERROR: ' + err);
-  });
+  if (req.file) {	
+	  const result = upload_image(req.file).then(function(res) {console.log("--------UPLOAD SUCCESS------------"); return res;}).catch((err) => console.log(err))
 
-  const result = await upload_image(req.file)
-
-  const result_sqs = await send_request_message(req.file.originalname)
+	  try{
+		  fs.unlinkSync(req.file.path)
+	  } catch(err) {
+		  console.log(err)
+	  }
 
 
-  res.end(req.file.originalname + ' uploaded!');
+	  const result_sqs = await send_request_message(req.file.originalname)
+
+
+	  res.end(req.file.originalname + ' uploaded!');
+  }  
 });
 
 const hostname = '0.0.0.0';
