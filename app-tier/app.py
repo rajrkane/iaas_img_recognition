@@ -34,10 +34,21 @@ def send_message(msg):
     response_queue.send_message(msg)
     print("Sent message to response queue!")
 
+def get_message():
+    '''
+    Gets a message from the request SQS queue
+    '''
+
+    request_queue = SQS()
+    message = request_queue.get_message()
+    return message
+
 def main():
-    result = get_class() # TODO: pass in a request
-    put_object(result)
-    send_message(result)
+    message = get_message()
+    print(message)
+    # result = get_class() # TODO: pass in a request
+    # put_object(result)
+    # send_message(result)
 
 if __name__=='__main__':
     main()

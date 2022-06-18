@@ -15,6 +15,7 @@ class SQS:
         load_dotenv()
         self.params = {
             'response_queue': os.getenv('SQS_RESPONSES_URL'),
+            'request_queue': os.getenv('SQS_REQUEST_URL'),
             'region': os.getenv('REGION'),
             'access_key': os.getenv('AWS_ACCESS_KEY'),
             'secret_key': os.getenv('AWS_SECRET_KEY')
@@ -49,3 +50,13 @@ class SQS:
             },
             MessageBody=msg['label']
         )
+
+    def get_message(self):
+        '''
+        Gets a message from the SQS request queue
+        '''
+
+        response = self.client.receive_message(
+                QueueUrl=self.params['request_queue']
+                )
+        return response
