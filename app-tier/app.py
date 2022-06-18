@@ -1,17 +1,22 @@
 from s3 import S3
 from sqs import SQS
+import os
 
-def get_class(request=None):
+def get_class(key):
     '''
     Gets the classification for a request on an image.
     '''
     
-    # TODO: remove default None from argument
-    # TODO: call the classifier here
+    # Call the classifier
+    os.system("cd ~/classifier; python3 image_classification.py /tmp/input/" 
+            + key + " > /tmp/output/" + key)
+    f = open('/tmp/output/' + key, 'r')
+    label = f.readline().split(',', 1)[1][:-1]
+
     # label = classify(key)
     result = { # update with real values
-        'key':      'FOO',
-        'label':    'BAR'
+        'key':      key,
+        'label':    label
     }
 
     return result
@@ -72,33 +77,35 @@ def download_output_bucket_object(key):
 
 
 def main():
-    message = get_message()
+    while True:
+        message = get_message()
 
-    if message is not None: # We got a message from the queue!
-        # Check if object is already classified in output bucket
-        response = download_output_bucket_object(message['messagebody'])
-        if response == "success": # we already have a classification for it
-            f = open('/tmp/output/' + message['messagebody'], 'r')
-            content = f.readline()
-            label = content.split(',', 1)[1][:-2]
-            send_message({
-                'key': message['messagebody'],
-                'label': label
-                })
-        else:        
-            # Get object from input bucket
-            response = download_input_bucket_object(message['messagebody'])
-            if response == "success": # input object downloaded successfully
-                return
-                # Classify the image
-                # Put classification in output bucket
-                # Send response message
-                
-        # delete request message
-        delete_message(message)
-    # result = get_class() # TODO: pass in a request
-    # put_object(result)
-    # send_message(result)
+        if message is not None: # We got a message from the queue!
+            
+            # Check if object is already classified in output bucket
+            response = download_output_bucket_object(message['messagebody'])
+            if response == "success": # we already have a classification for it
+                f = open('/tmp/output/' + message['messagebody'], 'r')
+                label = f.readline()
+                send_message({
+                    'key': message['messagebody'],
+                    'label': label
+                    })
+
+            else: # not classified yet       
+                # Get object from input bucket
+                response = download_input_bucket_object(message['messagebody'])
+                if response == "success": # input object downloaded successfully
+                    # Classify the image
+                    result = get_class(message['messagebody'])
+                    # Put classification in output bucket
+                    put_object(result)
+                    # Send response message
+                    send_message(result)
+
+            # delete request message
+            delete_message(message)
+
 
 if __name__=='__main__':
     main()

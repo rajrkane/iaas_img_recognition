@@ -66,11 +66,10 @@ class S3:
                     Key=key,
                     Filename='/tmp/input/' + key
                     )
-            print(response)
-            print("S3 input bucket file downloaded!")
+            print("S3 input bucket " + key + " downloaded!")
             return "success"
         except Exception as e:
-            print("Object doesnt exist!")
+            print(key + " doesnt exist in input bucket!")
             return None
 
     def download_output_bucket_object(self, key):
@@ -86,10 +85,9 @@ class S3:
                     Key=key,
                     Filename='/tmp/output/' + key
                     )
-            print(response)
-            print("S3 output bucket file downloaded!")
+            print("S3 output bucket " + key + " downloaded!")
             return "success"
         except Exception as e:
-            print("Object doesnt exist!")
+            print(key + " doesnt exist in the output bucket!")
             return None
 
