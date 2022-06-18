@@ -17,6 +17,7 @@ class S3:
     def load_params(self):
         load_dotenv()
         self.params = {
+            'input_bucket': os.getenv('S3_INPUT'),
             'output_bucket': os.getenv('S3_OUTPUT'),
             'region': os.getenv('REGION'),
             'access_key': os.getenv('AWS_ACCESS_KEY'),
@@ -50,3 +51,20 @@ class S3:
             f.write(str.encode(label))
             f.seek(0)
             self.client.upload_fileobj(f, self.params['output_bucket'], key)
+
+    def download_input_bucket_object(self, key):
+        '''
+        Gets an object from the input bucket
+        '''
+
+        try:
+            response = self.client.download_file(
+                    Bucket=self.params['input_bucket'],
+                    Key=key,
+                    Filename='/tmp/' + key
+                    )
+            print(response)
+            print("S3 input bucket file downloaded!")
+        except Exception as e:
+            print(e)
+            print("Object doesnt exist!")

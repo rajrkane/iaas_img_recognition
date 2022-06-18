@@ -52,16 +52,25 @@ def delete_message(msg):
     request_queue.delete_message(msg)
     print("Message deleted from SQS request queue!")
 
+def download_input_bucket_object(key):
+    '''
+    Downloads an object from S3 input bucket to /tmp/<key>
+    '''
+    input_bucket = S3()
+    input_bucket.download_input_bucket_object(key)
+
 def main():
     message = get_message()
+    print(message)
     if message is not None: # We got a message from the queue!
         # Check if object is already classified in output bucket
         # Get object from input bucket
+        download_input_bucket_object(message['messagebody'])
         # Classify the image
         # Put classification in output bucket
         # Send response message
         # delete request message
-        delete_message(message)
+        # delete_message(message)
 
     # result = get_class() # TODO: pass in a request
     # put_object(result)
