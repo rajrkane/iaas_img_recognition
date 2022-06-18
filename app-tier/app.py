@@ -1,6 +1,7 @@
 from s3 import S3
 from sqs import SQS
 import os
+import time
 
 def get_class(key):
     '''
@@ -78,6 +79,7 @@ def download_output_bucket_object(key):
 
 def main():
     while True:
+        time.sleep(2) # so we stay in free tier. cant query too much
         message = get_message()
 
         if message is not None: # We got a message from the queue!
