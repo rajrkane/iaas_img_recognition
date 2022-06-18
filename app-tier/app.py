@@ -43,9 +43,26 @@ def get_message():
     message = request_queue.get_message()
     return message
 
+def delete_message(msg):
+    '''
+    Deletes a message from the SQS request queue
+    '''
+
+    request_queue = SQS()
+    request_queue.delete_message(msg)
+    print("Message deleted from SQS request queue!")
+
 def main():
     message = get_message()
-    print(message)
+    if message is not None: # We got a message from the queue!
+        # Check if object is already classified in output bucket
+        # Get object from input bucket
+        # Classify the image
+        # Put classification in output bucket
+        # Send response message
+        # delete request message
+        delete_message(message)
+
     # result = get_class() # TODO: pass in a request
     # put_object(result)
     # send_message(result)

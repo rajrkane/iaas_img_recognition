@@ -59,4 +59,22 @@ class SQS:
         response = self.client.receive_message(
                 QueueUrl=self.params['request_queue']
                 )
-        return response
+        if 'Messages' in response:
+            message = {
+                    'receipthandle': response['Messages'][0]['ReceiptHandle'],
+                    'messagebody': response['Messages'][0]['Body']
+                    }
+            return message
+        else:
+            return None
+
+    def delete_message(self, msg):
+        '''
+        Deletes msg from the SQS request queue
+        '''
+
+        response = self.client.delete_message(
+                QueueUrl=self.params['request_queue'],
+                ReceiptHandle=msg['receipthandle']
+                )
+        print(response)
