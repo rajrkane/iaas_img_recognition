@@ -54,17 +54,42 @@ class S3:
 
     def download_input_bucket_object(self, key):
         '''
-        Gets an object from the input bucket
+        Gets an object from the input bucket.
+        If it downloads successfully, "success" is returned, else None
         '''
+        if os.path.isdir('/tmp/input/') is False:
+            os.mkdir('/tmp/input/')
 
         try:
             response = self.client.download_file(
                     Bucket=self.params['input_bucket'],
                     Key=key,
-                    Filename='/tmp/' + key
+                    Filename='/tmp/input/' + key
                     )
             print(response)
             print("S3 input bucket file downloaded!")
+            return "success"
         except Exception as e:
-            print(e)
             print("Object doesnt exist!")
+            return None
+
+    def download_output_bucket_object(self, key):
+        '''
+        Gets an object from the output bucket.
+        If it downloads successfully, "success" is returned, else None
+        '''
+        if os.path.isdir('/tmp/output/') is False:
+            os.mkdir('/tmp/output/')
+        try:
+            response = self.client.download_file(
+                    Bucket=self.params['output_bucket'],
+                    Key=key,
+                    Filename='/tmp/output/' + key
+                    )
+            print(response)
+            print("S3 output bucket file downloaded!")
+            return "success"
+        except Exception as e:
+            print("Object doesnt exist!")
+            return None
+

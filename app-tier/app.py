@@ -54,24 +54,48 @@ def delete_message(msg):
 
 def download_input_bucket_object(key):
     '''
-    Downloads an object from S3 input bucket to /tmp/<key>
+    Downloads an object from S3 input bucket to /tmp/input/<key>
+    Returns "success" if successful, else None.
     '''
     input_bucket = S3()
-    input_bucket.download_input_bucket_object(key)
+    response = input_bucket.download_input_bucket_object(key)
+    return response
+
+def download_output_bucket_object(key):
+    '''
+    Downloads an object from S3 output bucket to /tmp/output/<key>
+    Returns "success" if successful, else None.
+    '''
+    output_bucket = S3()
+    response = output_bucket.download_output_bucket_object(key)
+    return response
+
 
 def main():
     message = get_message()
-    print(message)
+
     if message is not None: # We got a message from the queue!
         # Check if object is already classified in output bucket
-        # Get object from input bucket
-        download_input_bucket_object(message['messagebody'])
-        # Classify the image
-        # Put classification in output bucket
-        # Send response message
+        response = download_output_bucket_object(message['messagebody'])
+        if response == "success": # we already have a classification for it
+            f = open('/tmp/output/' + message['messagebody'], 'r')
+            content = f.readline()
+            label = content.split(',', 1)[1][:-2]
+            send_message({
+                'key': message['messagebody'],
+                'label': label
+                })
+        else:        
+            # Get object from input bucket
+            response = download_input_bucket_object(message['messagebody'])
+            if response == "success": # input object downloaded successfully
+                return
+                # Classify the image
+                # Put classification in output bucket
+                # Send response message
+                
         # delete request message
-        # delete_message(message)
-
+        delete_message(message)
     # result = get_class() # TODO: pass in a request
     # put_object(result)
     # send_message(result)
