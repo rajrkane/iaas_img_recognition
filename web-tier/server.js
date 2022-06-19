@@ -10,7 +10,7 @@ const PORT = 3000;
 
 // AWS imports
 const {upload_image} = require('./s3');
-const {send_request_message} = require('./sqs');
+const {send_request_message, poll_responses} = require('./sqs');
 
 // Import background task that dynamically adds/removes app instances
 const {job} = require('./backgroundtask.js');
@@ -20,14 +20,13 @@ const {job} = require('./backgroundtask.js');
 const multer = require('multer');
 const upload = multer({dest: __dirname + '/upload_images'});
 
-
 server.use(express.static('public'));
 
 // Upload image to S3 input bucket and send message to the request SQS queue
 server.post('/', upload.single('myfile'), async (req, res) => {
 
   if (req.file) {	
-	  const result = upload_image(req.file).then(function(res) {console.log("--------UPLOAD SUCCESS------------"); return res;}).catch((err) => console.log(err))
+	  const result = upload_image(req.file).then(function(res) {console.log('Uploaded ' + req.file.originalname); return res}).catch((err) => console.log(err))
 
 	  try{
 		  fs.unlinkSync(req.file.path)
@@ -36,10 +35,8 @@ server.post('/', upload.single('myfile'), async (req, res) => {
 	  }
 
 
-	  const result_sqs = await send_request_message(req.file.originalname)
-
-
-	  res.end(req.file.originalname + ' uploaded!');
+		send_request_message(req.file.originalname)
+		poll_responses(req.file.originalname, res)
   }  
 });
 
@@ -47,3 +44,4 @@ const hostname = '0.0.0.0';
 server.listen(PORT, hostname, () => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
   });
+
