@@ -48,7 +48,7 @@ class SQS:
                     'StringValue': msg['key']
                 }
             },
-            MessageBody=msg['label']
+            MessageBody=msg['key'] + ',' + msg['label']
         )
 
     def get_message(self):

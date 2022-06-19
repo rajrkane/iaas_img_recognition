@@ -79,34 +79,37 @@ def download_output_bucket_object(key):
 
 def main():
     while True:
-        time.sleep(2) # so we stay in free tier. cant query too much
-        message = get_message()
+        try:
+            time.sleep(2) # so we stay in free tier. cant query too much
+            message = get_message()
 
-        if message is not None: # We got a message from the queue!
-            
-            # Check if object is already classified in output bucket
-            response = download_output_bucket_object(message['messagebody'])
-            if response == "success": # we already have a classification for it
-                f = open('/tmp/output/' + message['messagebody'], 'r')
-                label = f.readline()
-                send_message({
-                    'key': message['messagebody'],
-                    'label': label
-                    })
+            if message is not None: # We got a message from the queue!
+                
+                # Check if object is already classified in output bucket
+                response = download_output_bucket_object(message['messagebody'])
+                if response == "success": # we already have a classification for it
+                    f = open('/tmp/output/' + message['messagebody'], 'r')
+                    label = f.readline()
+                    send_message({
+                        'key': message['messagebody'],
+                        'label': label
+                        })
 
-            else: # not classified yet       
-                # Get object from input bucket
-                response = download_input_bucket_object(message['messagebody'])
-                if response == "success": # input object downloaded successfully
-                    # Classify the image
-                    result = get_class(message['messagebody'])
-                    # Put classification in output bucket
-                    put_object(result)
-                    # Send response message
-                    send_message(result)
+                else: # not classified yet       
+                    # Get object from input bucket
+                    response = download_input_bucket_object(message['messagebody'])
+                    if response == "success": # input object downloaded successfully
+                        # Classify the image
+                        result = get_class(message['messagebody'])
+                        # Put classification in output bucket
+                        put_object(result)
+                        # Send response message
+                        send_message(result)
 
-            # delete request message
-            delete_message(message)
+                # delete request message
+                delete_message(message)
+        except Exception as e:
+            print(e)
 
 
 if __name__=='__main__':
