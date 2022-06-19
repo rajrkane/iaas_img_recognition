@@ -10,7 +10,7 @@ const PORT = 3000;
 
 // AWS imports
 const {upload_image} = require('./s3');
-const {send_request_message} = require('./sqs');
+const {handle_message} = require('./sqs');
 
 // Import background task that dynamically adds/removes app instances
 const {job} = require('./backgroundtask.js');
@@ -35,11 +35,13 @@ server.post('/', upload.single('myfile'), async (req, res) => {
 		  console.log(err)
 	  }
 
+		//const MSG = await handle_message(req.file.originalname)
 
-	  const result_sqs = await send_request_message(req.file.originalname)
+	  handle_message(req.file.originalname)
 
+		//const response_res = await receive_response_message()
 
-	  res.end(req.file.originalname + ' uploaded!');
+	  res.end(req.file.originalname + ' uploaded, awaiting classification.');
   }  
 });
 
