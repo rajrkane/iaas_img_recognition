@@ -21,54 +21,55 @@ const send_request_message = (message_body) =>  {
 
 
 	// send request message
-	sqs.sendMessage(req_params).promise().then(() => {
-		//console.log('sent ' + message_body)
-	})
-	
-	// poll response queue
-	// return poll_responses(message_body)	
+	sqs.sendMessage(req_params).promise().then(() => {console.log('Sent request for ' + message_body)})
 }
 
-async function poll_responses (message_body, res) {
-	//console.log('polling')
+const poll_responses = (message_body, res) => {
 	const sec = 1 
 	const res_params = {
 		QueueUrl: response_queue_url,
-		MaxNumberOfMessages: 1,
-		VisibilityTimeout: sec, // lock message from other threads for X seconds
-		WaitTimeSeconds: 0
+		MaxNumberOfMessages: 10,
 	}
+
+	// check for message in a batch 
 	sqs.receiveMessage(res_params, (err, data) => {
 		if (err) console.log(err)
-		if (data.Messages) {
-			for (let i = 0; i < data.Messages.length; i++) {
-				let message = data.Messages[i]
-				let key = message.Body.split(',')[0]
-				let label = message.Body.split(',')[1]
-				if (key == message_body) { // got correct response
-					removeFromQueue(message)
-					res.end(message_body + label)
-				} else {
-					setTimeout(() => {}, sec * 80) // wait to release message
-					poll_responses(message_body, res)// poll again
+		else if (data.Messages) {
+			data.Messages.forEach(message => {
+				let [key, label] = message.Body.split(',')
+				if (key == message_body) { 
+					// got correct response
+					console.log('Got response `'+ label + '` for ' + key + '.')
+					removeFromQueue(message_body, label, message, res)
+					return
 				}
-			}	
+				/*else {
+					console.log('Thread for ' + message_body + ', got ' + key)
+				}*/
+			})
 		}
+
+		// if message not found, poll again
+		const rndVal = Math.floor(Math.random() * (3000 - 2000 + 1) + 2000)
+		setTimeout(() => {}, sec * rndVal)
+		poll_responses(message_body, res)
 	})
 }
 
-const removeFromQueue = (message) => {
-	const msg_name = message.Body.split(',')[0].slice()
-	sqs.deleteMessage({
+const removeFromQueue = (message_body, label, message, res) => {
+	const del_params = {
 		QueueUrl: response_queue_url,
 		ReceiptHandle: message.ReceiptHandle
-	}, (err, data) => {
-			if (err) {
-				console.log(err)
-			} else {
-					console.log('removed ' + msg_name)
-			}
-	})
+	}
+	const msg_name = message.Body.split(',')[0].slice()
+	sqs.deleteMessage(del_params, (err, data) => {
+				if (err) console.log(err)
+				else {
+					console.log('Removed ' + msg_name + ' response.')
+					//res.end(message_body + ' - ' + label)
+				}
+		})
+	res.end(message_body + ' - ' + label)
 }
 
 // get request queue attributes
@@ -83,5 +84,4 @@ function get_request_queue_length() {
 
 exports.send_request_message = send_request_message
 exports.poll_responses = poll_responses
-//exports.receive_response_message = receive_response_message
 exports.get_request_queue_length = get_request_queue_length

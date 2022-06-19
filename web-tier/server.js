@@ -20,14 +20,13 @@ const {job} = require('./backgroundtask.js');
 const multer = require('multer');
 const upload = multer({dest: __dirname + '/upload_images'});
 
-
 server.use(express.static('public'));
 
 // Upload image to S3 input bucket and send message to the request SQS queue
 server.post('/', upload.single('myfile'), async (req, res) => {
 
   if (req.file) {	
-	  const result = upload_image(req.file).then(function(res) {console.log("--------UPLOAD SUCCESS------------"); return res;}).catch((err) => console.log(err))
+	  const result = upload_image(req.file).then(function(res) {console.log('Uploaded ' + req.file.originalname); return res}).catch((err) => console.log(err))
 
 	  try{
 		  fs.unlinkSync(req.file.path)
@@ -37,11 +36,7 @@ server.post('/', upload.single('myfile'), async (req, res) => {
 
 
 		send_request_message(req.file.originalname)
-	  //const label = await handle_message(req.file.originalname)
 		poll_responses(req.file.originalname, res)
-		//const response_res = await receive_response_message()
-
-	  //res.end(req.file.originalname + label);
   }  
 });
 
@@ -49,3 +44,4 @@ const hostname = '0.0.0.0';
 server.listen(PORT, hostname, () => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
   });
+
