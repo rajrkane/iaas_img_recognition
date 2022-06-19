@@ -1,0 +1,14 @@
+[Unit]
+Description=Service for classifying images.
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/ubuntu/app.py
+Restart=always
+RestartSec=5
+User=ubuntu
+EnvironmentFile=/home/ubuntu/.env
+
+[Install]
+WantedBy=multi-user.target
+
