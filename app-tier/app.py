@@ -80,7 +80,6 @@ def download_output_bucket_object(key):
 def main():
     while True:
         try:
-            time.sleep(2) # so we stay in free tier. cant query too much
             message = get_message()
 
             if message is not None: # We got a message from the queue!
@@ -108,6 +107,9 @@ def main():
 
                 # delete request message
                 delete_message(message)
+            else:  # There is no message in the request queue
+                time.sleep(2) # so we stay in free tier. cant query too much
+
         except Exception as e:
             print(e)
 
