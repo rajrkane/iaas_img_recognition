@@ -1,5 +1,3 @@
-cloud computing project
-
 # S3 Setup
 
 Create an S3 input images bucket and output classifications bucket.
@@ -20,20 +18,8 @@ Create an IAM user for the app instance and give it programmatic access. Under p
 
 Give the ec2 instance a security group with inbound rule allowing TCP in port 3000. In the web server EC2 instance:
 
-Clone the repo and do the following commands.
-```
-sudo apt-get update
-
-sudo apt-get upgrade
-
-sudo apt install npm
-
-npm install --save multer
-
-npm install aws-sdk
-
-npm i dotenv
-```
+1. Clone the repo: `git clone https://github.com/rajrkane/iaas_img_recognition.git`.
+2. Install dependencies: `sudo bash setup.sh`.
 
 The root directory of the repo should have a `.env` file in the following format:
 ```
