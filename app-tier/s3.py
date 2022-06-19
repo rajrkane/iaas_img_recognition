@@ -17,6 +17,7 @@ class S3:
     def load_params(self):
         load_dotenv()
         self.params = {
+            'input_bucket': os.getenv('S3_INPUT'),
             'output_bucket': os.getenv('S3_OUTPUT'),
             'region': os.getenv('REGION'),
             'access_key': os.getenv('AWS_ACCESS_KEY'),
@@ -50,3 +51,43 @@ class S3:
             f.write(str.encode(label))
             f.seek(0)
             self.client.upload_fileobj(f, self.params['output_bucket'], key)
+
+    def download_input_bucket_object(self, key):
+        '''
+        Gets an object from the input bucket.
+        If it downloads successfully, "success" is returned, else None
+        '''
+        if os.path.isdir('/tmp/input/') is False:
+            os.mkdir('/tmp/input/')
+
+        try:
+            response = self.client.download_file(
+                    Bucket=self.params['input_bucket'],
+                    Key=key,
+                    Filename='/tmp/input/' + key
+                    )
+            print("S3 input bucket " + key + " downloaded!")
+            return "success"
+        except Exception as e:
+            print(key + " doesnt exist in input bucket!")
+            return None
+
+    def download_output_bucket_object(self, key):
+        '''
+        Gets an object from the output bucket.
+        If it downloads successfully, "success" is returned, else None
+        '''
+        if os.path.isdir('/tmp/output/') is False:
+            os.mkdir('/tmp/output/')
+        try:
+            response = self.client.download_file(
+                    Bucket=self.params['output_bucket'],
+                    Key=key,
+                    Filename='/tmp/output/' + key
+                    )
+            print("S3 output bucket " + key + " downloaded!")
+            return "success"
+        except Exception as e:
+            print(key + " doesnt exist in the output bucket!")
+            return None
+

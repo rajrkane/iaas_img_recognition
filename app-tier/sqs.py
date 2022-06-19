@@ -15,6 +15,7 @@ class SQS:
         load_dotenv()
         self.params = {
             'response_queue': os.getenv('SQS_RESPONSES_URL'),
+            'request_queue': os.getenv('SQS_REQUEST_URL'),
             'region': os.getenv('REGION'),
             'access_key': os.getenv('AWS_ACCESS_KEY'),
             'secret_key': os.getenv('AWS_SECRET_KEY')
@@ -49,3 +50,31 @@ class SQS:
             },
             MessageBody=msg['label']
         )
+
+    def get_message(self):
+        '''
+        Gets a message from the SQS request queue
+        '''
+
+        response = self.client.receive_message(
+                QueueUrl=self.params['request_queue']
+                )
+        if 'Messages' in response:
+            message = {
+                    'receipthandle': response['Messages'][0]['ReceiptHandle'],
+                    'messagebody': response['Messages'][0]['Body']
+                    }
+            return message
+        else:
+            return None
+
+    def delete_message(self, msg):
+        '''
+        Deletes msg from the SQS request queue
+        '''
+
+        response = self.client.delete_message(
+                QueueUrl=self.params['request_queue'],
+                ReceiptHandle=msg['receipthandle']
+                )
+        print(response)
