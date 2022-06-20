@@ -1,3 +1,70 @@
+# Group + Tasks
+
+### 1. **Raj Kane**:
+  * Repo management
+  * Final testing + debugging
+  * Nodejs setup
+  * PDF Report
+  * Handle responses
+  * Logging
+  * S3:
+    - Class setup on web server side
+    - Upload image to S3
+  * SQS:
+    - Class setup on web server side
+    - Send message to request queue
+    - Get message from response queue
+    - Delete message from response queue
+  * EC2:
+    - Class setup on web server side
+
+### 2. **Trey Manuszak**:
+  * Web tier system service setup
+  * AWS user + credential management
+  * Final testing and debugging
+  * README
+  * S3:
+    - Get image from S3 input
+    - Send classification to S3 output
+  * SQS: 
+    - Get request queue length
+    - Get message from request queue
+    - Delete message from request queue
+    - Send message to response queue
+  * EC2:
+    - Class setup on web server side
+    - Programmed background task for dynamic app spin up and down
+    - Python cronjob script on startup 
+    - Get number of running and pending instances
+
+# Credentials
+
+The SSH key for access to the app and webserver instances is the `web-server test instance key.pem` file and the credentials for managing the resources are in the `CSE546Group_accessKeys.csv` file.
+
+# Resouce Names:
+
+## EC2
+
+Web server URL: `http://52.54.218.30:3000`
+
+Web servername: `web-server`
+
+App instances: `app-tier-<# of app tier>`
+
+App tier ami: `ami-06daa736cc26fdd1d`
+
+## S3
+
+Input Bucket: `cse546group-images-input`
+
+Output bucket: `cse546group-output-classifications`
+
+## SQS
+
+Request queue name: `cse546-request-queue`
+
+Response queue name: `cse546-response-queue`
+
 # S3 Setup
 
 Create an S3 input images bucket and output classifications bucket.
